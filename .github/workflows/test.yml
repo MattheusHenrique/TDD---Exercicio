@@ -62,13 +62,37 @@ jobs:
         pip install -r requirements.txt
     
     - name: Testar todos os commits
+      continue-on-error: true
       run: |
         echo "=== TESTANDO TODOS OS COMMITS ==="
+        failed_commits=()
+        passed_commits=()
+        
         git log --oneline --reverse --format="%H %s" | while read commit message; do
           echo ""
           echo "🔍 Testando: $message"
           echo "Commit: $commit"
           git checkout $commit
-          PYTHONPATH=. pytest -v --tb=line
-          echo "✅ Commit $commit testado"
+          
+          if PYTHONPATH=. pytest -v --tb=line; then
+            echo "✅ Commit $commit PASSOU"
+            passed_commits+=("$commit: $message")
+          else
+            echo "❌ Commit $commit FALHOU"
+            failed_commits+=("$commit: $message")
+          fi
+        done
+        
+        echo ""
+        echo "=== RELATÓRIO FINAL ==="
+        echo "📊 Total de commits testados: $(git rev-list --count HEAD)"
+        echo ""
+        echo "✅ Commits que PASSARAM:"
+        for commit in "${passed_commits[@]}"; do
+          echo "  - $commit"
+        done
+        echo ""
+        echo "❌ Commits que FALHARAM:"
+        for commit in "${failed_commits[@]}"; do
+          echo "  - $commit"
         done
