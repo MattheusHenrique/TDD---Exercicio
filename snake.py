@@ -94,7 +94,7 @@ class Snake:
 
         crescimentos_apos_20 = tamanho - 21
         blocos_esperados = (crescimentos_apos_20 // 5) + 1
-        
+
         if len(self._collision_blocks) >= blocos_esperados:
             return
 
@@ -103,7 +103,7 @@ class Snake:
 
         for _ in range(blocos_a_adicionar):
             attempts = 0
-            while attempts < 100: 
+            while attempts < 100:
                 x = random.randint(0, width - 1)
                 y = random.randint(0, height - 1)
                 pos = (x, y)
