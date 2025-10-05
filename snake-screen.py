@@ -45,11 +45,11 @@ class io_handler:
             print("|", end="")
             for item in line:
                 if item == 1:
-                    print("[]", end="")
+                    print("🟩", end="")  # corpo
                 elif item == 2:
-                    print("<>", end="")
+                    print("🐍", end="")  # cabeça
                 elif item == 3:
-                    print("()", end="")
+                    print("🍎", end="")  # fruta
                 else:
                     print("  ", end="")
             print("|")
