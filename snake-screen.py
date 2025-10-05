@@ -1,6 +1,7 @@
 import os
 import time
 from pynput import keyboard
+import random
 
 from snake import Snake
 
@@ -62,7 +63,8 @@ class io_handler:
 
 
 ### exemplo do uso da classe io_handler
-instance = io_handler((10, 15), 0.2)
+# Campo maior
+instance = io_handler((30, 20), 0.12)
 
 
 DIRECTION_MAP = {
@@ -92,19 +94,25 @@ def _draw_snake_and_fruit(io, snake, fruit_pos):
         io.matrix[hy][hx] = 2
 
 
-def _find_first_empty(io):
-    for y in range(io.y_size):
-        for x in range(io.x_size):
-            if io.matrix[y][x] == 0:
-                return (x, y)
-    return (0, 0)
+def _random_empty(io, snake):
+    occupied = set(snake.body)
+    candidates = [
+        (x, y)
+        for y in range(io.y_size)
+        for x in range(io.x_size)
+        if (x, y) not in occupied
+    ]
+    if not candidates:
+        return (0, 0)
+    return random.choice(candidates)
 
 
 def game_loop():
     snake = Snake(
         start=(1, 1), direction="RIGHT", bounds=(instance.x_size, instance.y_size)
     )
-    fruit_pos = (3, 0)
+
+    fruit_pos = _random_empty(instance, snake)
 
     instance.record_inputs()
     while True:
@@ -114,6 +122,7 @@ def game_loop():
 
         snake.move()
 
+        # game over apenas por colisão com o próprio corpo
         if snake.collides_with_self():
             _clear_matrix(instance)
             instance.display()
@@ -122,9 +131,7 @@ def game_loop():
 
         if snake.head == fruit_pos:
             snake.grow()
-            _clear_matrix(instance)
-            _draw_snake_and_fruit(instance, snake, fruit_pos)
-            fruit_pos = _find_first_empty(instance)
+            fruit_pos = _random_empty(instance, snake)
 
         _clear_matrix(instance)
         _draw_snake_and_fruit(instance, snake, fruit_pos)
