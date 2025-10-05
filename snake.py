@@ -61,3 +61,8 @@ class Snake:
 
     def collides_with_self(self):
         return self.head in self.body[1:]
+
+    def num_frutas_ativas(self) -> int:
+        tamanho = len(self.body)
+        crescimentos = max(0, tamanho - 1)
+        return 1 + (crescimentos // 10)

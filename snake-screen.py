@@ -81,10 +81,10 @@ def _clear_matrix(io):
             io.matrix[y][x] = 0
 
 
-def _draw_snake_and_fruit(io, snake, fruit_pos):
-    fx, fy = fruit_pos
-    if 0 <= fx < io.x_size and 0 <= fy < io.y_size:
-        io.matrix[fy][fx] = 3
+def _draw_snake_and_fruits(io, snake, fruits):
+    for fx, fy in fruits:
+        if 0 <= fx < io.x_size and 0 <= fy < io.y_size:
+            io.matrix[fy][fx] = 3
     for seg in snake.body[1:]:
         x, y = seg
         if 0 <= x < io.x_size and 0 <= y < io.y_size:
@@ -94,8 +94,10 @@ def _draw_snake_and_fruit(io, snake, fruit_pos):
         io.matrix[hy][hx] = 2
 
 
-def _random_empty(io, snake):
+def _random_empty(io, snake, occupied_extra=None):
     occupied = set(snake.body)
+    if occupied_extra:
+        occupied |= set(occupied_extra)
     candidates = [
         (x, y)
         for y in range(io.y_size)
@@ -107,12 +109,23 @@ def _random_empty(io, snake):
     return random.choice(candidates)
 
 
+def _ensure_fruits(io, snake, fruits):
+    alvo = snake.num_frutas_ativas()
+    while len(fruits) > alvo:
+        fruits.pop()
+    while len(fruits) < alvo:
+        pos = _random_empty(io, snake, fruits)
+        if pos not in fruits:
+            fruits.append(pos)
+
+
 def game_loop():
     snake = Snake(
         start=(1, 1), direction="RIGHT", bounds=(instance.x_size, instance.y_size)
     )
 
-    fruit_pos = _random_empty(instance, snake)
+    fruits = []
+    _ensure_fruits(instance, snake, fruits)
 
     instance.record_inputs()
     while True:
@@ -122,22 +135,29 @@ def game_loop():
 
         snake.move()
 
-        # game over apenas por colisão com o próprio corpo
         if snake.collides_with_self():
             _clear_matrix(instance)
             instance.display()
             print("Game Over!")
             break
 
-        if snake.head == fruit_pos:
+        consumed = False
+        if snake.head in fruits:
+            fruits = [f for f in fruits if f != snake.head]
             snake.grow()
-            fruit_pos = _random_empty(instance, snake)
+            consumed = True
+        _ensure_fruits(instance, snake, fruits)
 
         _clear_matrix(instance)
-        _draw_snake_and_fruit(instance, snake, fruit_pos)
+        _draw_snake_and_fruits(instance, snake, fruits)
 
         instance.display()
-        print("Mova com WASD, saia com ESC. Último botão:", instance.last_input)
+        print(
+            "Mova com WASD, ESC para sair | Frutas:",
+            len(fruits),
+            "| Tamanho:",
+            len(snake.body),
+        )
 
         if instance.last_input == "end":
             print("Saindo do jogo...")
