@@ -109,11 +109,11 @@ def test_crescimento_na_linha_zero_nao_excede_com_wrap():
     assert s.head == (1, 0)
     assert len(s.body) == 4
 
-    s.move()  
+    s.move()
     assert s.head == (2, 0)
     assert len(s.body) == 4
 
-    s.move() 
+    s.move()
     assert s.head == (3, 0)
     assert len(s.body) == 4
 
@@ -133,10 +133,10 @@ def test_num_frutas_comeca_em_1():
 @pytest.mark.parametrize(
     "crescimentos,frutas",
     [
-        (0, 1),  
-        (1, 1),  
+        (0, 1),
+        (1, 1),
         (9, 1),
-        (10, 2),  
+        (10, 2),
         (19, 2),
         (20, 3),
         (25, 3),
@@ -147,3 +147,78 @@ def test_num_frutas_aumenta_a_cada_10_crescimentos(crescimentos, frutas):
     s = Snake(start=(0, 0), direction="RIGHT", bounds=(50, 50))
     _crescer_n(s, crescimentos)
     assert s.num_frutas_ativas() == frutas
+
+
+# Regras de negócio: blocos de colisão aparecem após 20 crescimentos
+
+
+def test_blocos_colisao_comeca_vazio():
+    s = Snake(start=(0, 0), direction="RIGHT")
+    assert hasattr(s, "blocos_colisao")
+    assert s.blocos_colisao() == []
+
+
+def test_blocos_colisao_aparecem_apos_20_crescimentos():
+    s = Snake(start=(0, 0), direction="RIGHT", bounds=(50, 50))
+    _crescer_n(s, 19)  # 19 crescimentos
+    assert s.blocos_colisao() == []
+
+    _crescer_n(s, 1)  # 20º crescimento
+    blocos = s.blocos_colisao()
+    assert len(blocos) == 1  # primeiro bloco
+    # blocos devem ser posições válidas dentro dos bounds
+    for x, y in blocos:
+        assert 0 <= x < 50
+        assert 0 <= y < 50
+
+
+def test_blocos_colisao_aumentam_a_cada_5_crescimentos():
+    s = Snake(start=(0, 0), direction="RIGHT", bounds=(50, 50))
+    _crescer_n(s, 20)  # tamanho 21
+    assert len(s.blocos_colisao()) == 1
+
+    _crescer_n(s, 4)  # tamanho 25 (4 crescimentos após 20)
+    assert len(s.blocos_colisao()) == 1
+
+    _crescer_n(s, 1)  # tamanho 26 (5º crescimento após 20)
+    assert len(s.blocos_colisao()) == 2
+
+    _crescer_n(s, 4)  # tamanho 30 (9 crescimentos após 20)
+    assert len(s.blocos_colisao()) == 2
+
+    _crescer_n(s, 1)  # tamanho 31 (10º crescimento após 20)
+    assert len(s.blocos_colisao()) == 3
+
+
+def test_blocos_colisao_nao_sobrepoem_cobra():
+    s = Snake(start=(0, 0), direction="RIGHT", bounds=(50, 50))
+    _crescer_n(s, 20)
+    blocos = s.blocos_colisao()
+    # blocos não devem estar na posição da cobra
+    for bloco in blocos:
+        assert bloco not in s.body
+
+
+def test_colisao_com_bloco_termina_jogo():
+    s = Snake(start=(0, 0), direction="RIGHT", bounds=(50, 50))
+    _crescer_n(s, 20)
+    blocos = s.blocos_colisao()
+
+    # mover para um bloco de colisão
+    if blocos:
+        s.head = blocos[0]  # simula movimento para o bloco
+        assert s.collides_with_self() is True
+
+
+def test_blocos_colisao_estao_estaveis_entre_movimentos():
+    s = Snake(start=(0, 0), direction="RIGHT", bounds=(50, 50))
+    _crescer_n(s, 20)
+    blocos_inicial = s.blocos_colisao()
+
+    # mover algumas vezes
+    s.move()
+    s.move()
+    s.move()
+
+    # blocos devem permanecer os mesmos
+    assert s.blocos_colisao() == blocos_inicial
