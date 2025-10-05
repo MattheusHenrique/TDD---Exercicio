@@ -76,8 +76,8 @@ def game_loop():
             print("Saindo do jogo...")
             break
 
-        # aqui você pode adicionar a lógica do jogo
         time.sleep(instance.game_speed)
 
 
-game_loop()
+if __name__ == "__main__" and not os.environ.get("SNAKE_TESTING"):
+    game_loop()
