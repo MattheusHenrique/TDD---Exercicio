@@ -8,13 +8,12 @@ class Snake:
         "RIGHT": "LEFT",
     }
 
-    def __init__(self, start, direction):
+    def __init__(self, start, direction, bounds=None):
         self.head = start
         self.direction = direction
         self.body = [start]
         self._pending_growth = 0
-        self._visited = {start}
-        self._recent_collision = False
+        self.bounds = bounds
 
     def _direction_delta(self, direction):
         if direction == "RIGHT":
@@ -29,14 +28,20 @@ class Snake:
 
     def move(self):
         dx, dy = self._direction_delta(self.direction)
-        next_head = (self.head[0] + dx, self.head[1] + dy)
+        next_x = self.head[0] + dx
+        next_y = self.head[1] + dy
 
-        if next_head in self._visited or next_head in self.body:
-            self._recent_collision = True
+        if self.bounds is not None:
+            width, height = self.bounds
+            if width > 0:
+                next_x = next_x % width
+            if height > 0:
+                next_y = next_y % height
+
+        next_head = (next_x, next_y)
 
         self.body.insert(0, next_head)
         self.head = next_head
-        self._visited.add(next_head)
 
         if self._pending_growth > 0:
             self._pending_growth -= 1
@@ -55,4 +60,4 @@ class Snake:
         self.direction = new_direction
 
     def collides_with_self(self):
-        return self._recent_collision or self.head in self.body[1:]
+        return self.head in self.body[1:]

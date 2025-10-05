@@ -100,13 +100,10 @@ def _find_first_empty(io):
     return (0, 0)
 
 
-def _out_of_bounds(io, pos):
-    x, y = pos
-    return not (0 <= x < io.x_size and 0 <= y < io.y_size)
-
-
 def game_loop():
-    snake = Snake(start=(1, 1), direction="RIGHT")
+    snake = Snake(
+        start=(1, 1), direction="RIGHT", bounds=(instance.x_size, instance.y_size)
+    )
     fruit_pos = (3, 0)
 
     instance.record_inputs()
@@ -117,7 +114,7 @@ def game_loop():
 
         snake.move()
 
-        if _out_of_bounds(instance, snake.head) or snake.collides_with_self():
+        if snake.collides_with_self():
             _clear_matrix(instance)
             instance.display()
             print("Game Over!")
