@@ -58,3 +58,31 @@ def test_detecta_colisao_com_o_proprio_corpo():
     s.turn("UP")
     s.move()
     assert s.collides_with_self() is True
+
+
+@pytest.mark.parametrize(
+    "start,direcao,bounds,esperado",
+    [
+        ((4, 1), "RIGHT", (5, 4), (0, 1)),  # sai à direita, entra pela esquerda
+        ((0, 2), "LEFT", (5, 4), (4, 2)),  # sai à esquerda, entra pela direita
+    ],
+)
+def test_wrap_horizontal_sem_colisao(start, direcao, bounds, esperado):
+    s = Snake(start=start, direction=direcao, bounds=bounds)
+    s.move()
+    assert s.head == esperado
+    assert s.collides_with_self() is False
+
+
+@pytest.mark.parametrize(
+    "start,direcao,bounds,esperado",
+    [
+        ((2, 0), "UP", (5, 4), (2, 3)),  # sai por cima, entra por baixo
+        ((1, 3), "DOWN", (5, 4), (1, 0)),  # sai por baixo, entra por cima
+    ],
+)
+def test_wrap_vertical_sem_colisao(start, direcao, bounds, esperado):
+    s = Snake(start=start, direction=direcao, bounds=bounds)
+    s.move()
+    assert s.head == esperado
+    assert s.collides_with_self() is False
