@@ -1,115 +1,51 @@
-# Snake Game 🐍
+# Snake Game
 
-Um jogo Snake simples implementado em Python com interface de terminal, desenvolvido seguindo princípios de TDD (Test-Driven Development).
+Jogo Snake implementado em Python com interface de terminal, desenvolvido usando TDD.
 
-## 📋 Pré-requisitos
+## Como executar
 
-- Python 3.12 ou superior
-- pip (gerenciador de pacotes do Python)
-- Docker (opcional, para execução em container)
-
-## 🚀 Instalação e Execução
-
-### Opção 1: Execução Local
-
-1. **Clone o repositório:**
-
-   ```bash
-   git clone <url-do-repositorio>
-   cd TDD---Exercicio
-   ```
-
-2. **Instale as dependências:**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Execute o jogo:**
-
-   ```bash
-   python snake-screen.py
-   ```
-
-### Opção 2: Execução com Docker
-
-1. **Clone o repositório:**
-
-   ```bash
-   git clone <url-do-repositorio>
-   cd TDD---Exercicio
-   ```
-
-2. **Execute com Docker:**
-
-   ```bash
-   docker run -it --rm -v $(pwd):/app -w /app python:3.12-slim bash -c "pip install -r requirements.txt && python snake-screen.py"
-   ```
-
-   **Para Windows (PowerShell):**
-
-   ```powershell
-   docker run -it --rm -v ${PWD}:/app -w /app python:3.12-slim bash -c "pip install -r requirements.txt && python snake-screen.py"
-   ```
-
-### Opção 3: Docker Compose (Recomendado)
-
-1. **Crie um arquivo `docker-compose.yml`:**
-
-   ```yaml
-   version: '3.8'
-   services:
-     snake-game:
-       image: python:3.12-slim
-       working_dir: /app
-       volumes:
-         - .:/app
-       command: bash -c "pip install -r requirements.txt && python snake-screen.py"
-       stdin_open: true
-       tty: true
-   ```
-
-2. **Execute o jogo:**
-
-   ```bash
-   docker-compose up
-   ```
-
-## 🎮 Como Jogar
-
-- **W** - Mover para cima
-- **A** - Mover para esquerda  
-- **S** - Mover para baixo
-- **D** - Mover para direita
-- **ESC** - Sair do jogo
-
-## 🧪 Executando os Testes
-
-Para executar os testes do projeto:
+### Instalação
 
 ```bash
-# Localmente
-pytest
-
-# Com Docker
-docker run -it --rm -v $(pwd):/app -w /app python:3.12-slim bash -c "pip install -r requirements.txt && pytest"
+git clone <url-do-repositorio>
+cd TDD---Exercicio
+pip install -r requirements.txt
 ```
 
-## 📁 Estrutura do Projeto
+### Jogar
 
-```text
-TDD---Exercicio/
-├── snake.py              # Módulo principal (em desenvolvimento)
-├── snake-screen.py       # Interface de terminal e loop do jogo
-├── requirements.txt      # Dependências do projeto
-├── tests/
-│   └── test_snake.py     # Testes unitários
-└── README.md            # Este arquivo
+```bash
+python3 snake-screen.py
 ```
 
-## 🔧 Dependências
+### Testes
 
-- **python**: 3.12
-- **pytest**: 8.3.4 (para testes)
-- **python-coverage**: 7.3.2 (para cobertura de testes)
-- **keyboard**: Para captura de teclas (instalada via pip)
+```bash
+./run_tests.sh
+```
+
+## Controles
+
+- **WASD** - Mover a cobra
+- **ESC** - Sair
+
+## Regras do jogo
+
+- A cobra cresce ao comer frutas (🍎)
+- Game over ao colidir com o próprio corpo
+- A cobra atravessa as bordas (wrap-around)
+- A cada 10 crescimentos, aparece uma fruta adicional no campo
+
+## Estrutura
+
+- `snake.py` - Lógica da cobra
+- `snake-screen.py` - Interface e loop do jogo
+- `tests/test_snake.py` - Testes unitários
+- `run_tests.sh` - Script para executar testes
+- `run.sh` - Script para executar o jogo
+
+## Dependências
+
+- Python 3.12+
+- pytest
+- pynput (captura de teclas)
