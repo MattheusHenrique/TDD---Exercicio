@@ -51,6 +51,8 @@ def test_detecta_colisao_com_o_proprio_corpo():
     s.move()
     s.grow()
     s.move()
+    s.grow()
+    s.move()
     s.turn("DOWN")
     s.move()
     s.turn("LEFT")
@@ -86,3 +88,62 @@ def test_wrap_vertical_sem_colisao(start, direcao, bounds, esperado):
     s.move()
     assert s.head == esperado
     assert s.collides_with_self() is False
+
+
+def test_crescimento_na_linha_zero_nao_excede_com_wrap():
+    # Garantir que crescer na linha y=0 não cria segmentos extras ao atravessar (0,0)
+    s = Snake(start=(3, 0), direction="RIGHT", bounds=(5, 4))
+
+    s.grow()
+    s.move()
+    assert s.head == (4, 0)
+    assert len(s.body) == 2
+
+    s.grow()
+    s.move()
+    assert s.head == (0, 0)
+    assert len(s.body) == 3
+
+    s.grow()
+    s.move()
+    assert s.head == (1, 0)
+    assert len(s.body) == 4
+
+    s.move()  
+    assert s.head == (2, 0)
+    assert len(s.body) == 4
+
+    s.move() 
+    assert s.head == (3, 0)
+    assert len(s.body) == 4
+
+
+def _crescer_n(s: Snake, n: int):
+    for _ in range(n):
+        s.grow()
+        s.move()
+
+
+def test_num_frutas_comeca_em_1():
+    s = Snake(start=(0, 0), direction="RIGHT")
+    assert hasattr(s, "num_frutas_ativas")
+    assert s.num_frutas_ativas() == 1
+
+
+@pytest.mark.parametrize(
+    "crescimentos,frutas",
+    [
+        (0, 1),  
+        (1, 1),  
+        (9, 1),
+        (10, 2),  
+        (19, 2),
+        (20, 3),
+        (25, 3),
+        (30, 4),
+    ],
+)
+def test_num_frutas_aumenta_a_cada_10_crescimentos(crescimentos, frutas):
+    s = Snake(start=(0, 0), direction="RIGHT", bounds=(50, 50))
+    _crescer_n(s, crescimentos)
+    assert s.num_frutas_ativas() == frutas
