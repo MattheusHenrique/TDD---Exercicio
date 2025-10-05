@@ -1,3 +1,6 @@
+import random
+
+
 class Snake:
     """Implementação inicial da Snake para atender aos testes."""
 
@@ -14,6 +17,7 @@ class Snake:
         self.body = [start]
         self._pending_growth = 0
         self.bounds = bounds
+        self._collision_blocks = []
 
     def _direction_delta(self, direction):
         if direction == "RIGHT":
@@ -49,6 +53,8 @@ class Snake:
             if len(self.body) > 1:
                 self.body.pop()
 
+        self._generate_collision_blocks()
+
     def grow(self):
         self._pending_growth += 1
 
@@ -60,9 +66,50 @@ class Snake:
         self.direction = new_direction
 
     def collides_with_self(self):
-        return self.head in self.body[1:]
+        if self.head in self.body[1:]:
+            return True
+        if self.head in self._collision_blocks:
+            return True
+        return False
 
     def num_frutas_ativas(self) -> int:
         tamanho = len(self.body)
         crescimentos = max(0, tamanho - 1)
         return 1 + (crescimentos // 10)
+
+    def blocos_colisao(self):
+        return self._collision_blocks.copy()
+
+    def _generate_collision_blocks(self):
+        tamanho = len(self.body)
+        if tamanho < 21:
+            return
+
+        if self.bounds is None:
+            return
+
+        width, height = self.bounds
+        if width <= 0 or height <= 0:
+            return
+
+        crescimentos_apos_20 = tamanho - 21
+        blocos_esperados = (crescimentos_apos_20 // 5) + 1
+        
+        if len(self._collision_blocks) >= blocos_esperados:
+            return
+
+        blocos_a_adicionar = blocos_esperados - len(self._collision_blocks)
+        occupied = set(self.body) | set(self._collision_blocks)
+
+        for _ in range(blocos_a_adicionar):
+            attempts = 0
+            while attempts < 100: 
+                x = random.randint(0, width - 1)
+                y = random.randint(0, height - 1)
+                pos = (x, y)
+
+                if pos not in occupied:
+                    self._collision_blocks.append(pos)
+                    occupied.add(pos)
+                    break
+                attempts += 1

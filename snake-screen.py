@@ -51,6 +51,8 @@ class io_handler:
                     print("🐍", end="")  # cabeça
                 elif item == 3:
                     print("🍎", end="")  # fruta
+                elif item == 4:
+                    print("🟫", end="")  # bloco de colisão
                 else:
                     print("  ", end="")
             print("|")
@@ -82,6 +84,10 @@ def _clear_matrix(io):
 
 
 def _draw_snake_and_fruits(io, snake, fruits):
+    for bx, by in snake.blocos_colisao():
+        if 0 <= bx < io.x_size and 0 <= by < io.y_size:
+            io.matrix[by][bx] = 4  # bloco de colisão
+
     for fx, fy in fruits:
         if 0 <= fx < io.x_size and 0 <= fy < io.y_size:
             io.matrix[fy][fx] = 3
@@ -96,6 +102,7 @@ def _draw_snake_and_fruits(io, snake, fruits):
 
 def _random_empty(io, snake, occupied_extra=None):
     occupied = set(snake.body)
+    occupied |= set(snake.blocos_colisao())  # evitar blocos de colisão
     if occupied_extra:
         occupied |= set(occupied_extra)
     candidates = [
@@ -141,11 +148,9 @@ def game_loop():
             print("Game Over!")
             break
 
-        consumed = False
         if snake.head in fruits:
             fruits = [f for f in fruits if f != snake.head]
             snake.grow()
-            consumed = True
         _ensure_fruits(instance, snake, fruits)
 
         _clear_matrix(instance)
@@ -157,6 +162,8 @@ def game_loop():
             len(fruits),
             "| Tamanho:",
             len(snake.body),
+            "| Blocos:",
+            len(snake.blocos_colisao()),
         )
 
         if instance.last_input == "end":
