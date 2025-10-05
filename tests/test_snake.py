@@ -46,19 +46,24 @@ def test_nao_pode_reverter_direcao(direcao_atual, direcao, permitido):
 
 
 def test_detecta_colisao_com_o_proprio_corpo():
-    s = Snake(start=(3, 3), direction="RIGHT")
-    s.grow()
-    s.move()
-    s.grow()
-    s.move()
-    s.grow()
-    s.move()
+    s = Snake(start=(0, 0), direction="RIGHT")
+    # Crescer muito para ter corpo longo
+    for _ in range(10):
+        s.grow()
+        s.move()
+
+    # Agora fazer um loop fechado para colidir
     s.turn("DOWN")
+    s.move()
+    s.turn("LEFT")
     s.move()
     s.turn("LEFT")
     s.move()
     s.turn("UP")
     s.move()
+    s.turn("RIGHT")
+    s.move()  # Agora deve colidir com o corpo
+
     assert s.collides_with_self() is True
 
 
