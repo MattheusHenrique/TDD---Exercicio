@@ -5,6 +5,7 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:  
 
 jobs:
   test:
@@ -41,3 +42,33 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
+
+  test-historical:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Configurar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Instalar dependências
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Testar todos os commits
+      run: |
+        echo "=== TESTANDO TODOS OS COMMITS ==="
+        git log --oneline --reverse --format="%H %s" | while read commit message; do
+          echo ""
+          echo "🔍 Testando: $message"
+          echo "Commit: $commit"
+          git checkout $commit
+          PYTHONPATH=. pytest -v --tb=line
+          echo "✅ Commit $commit testado"
+        done
